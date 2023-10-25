@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-config
+  namespace: monitoring
+data:
+  telegraf.conf: |+
+    [agent]
+      interval = "10s"
+      logfile  = ""
+      debug = true
+      round_interval = true
+      metric_batch_size = 1000
+      metric_buffer_limit = 10000
+      collection_jitter = "0s"
+      flush_interval = "10s"
+      flush_jitter = "0s"
+      precision = ""
+      quiet = false
+      hostname = ""
+      omit_hostname = true
+    #Statsd Server
+    [[inputs.statsd]]
+      max_tcp_connections = 250
+      tcp_keep_alive = false
+      service_address = ":8125"
+      delete_gauges = true
+      delete_counters = true
+      delete_sets = true
+      delete_timings = true
+      metric_separator = "."
+      allowed_pending_messages = 10000
+      percentile_limit = 1000
+      parse_data_dog_tags = true
+      read_buffer_size = 65535
+    [[inputs.dns_query]]
+      servers = ["1.1.1.1", "8.8.8.8", "208.67.222.222",  "10.220.55.100", "10.230.55.100"]
+      domains = ["www.google.com", "www.amazon.com", "www.wikipedia.org"]
+      record_type = "A"
+      port = 53
+      timeout = 3
+    [[outputs.influxdb_v2]]
+      urls = ["$INFLUXDB_URL"]
+      token = "$INFLUXDB_TOKEN"
+      organization = "test-env"
+      bucket = "report"
